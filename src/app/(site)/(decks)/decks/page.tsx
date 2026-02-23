@@ -1,5 +1,5 @@
-import Decks from "./_components/Decks/Decks";
-import { getDecks } from "./_actions/decks_actions";
+import Decks from "../_components/Decks/Decks";
+import { getDecks } from "../_actions/decks_actions";
 
 export default function DecksPage() {
     const decksData = getDecks();
