@@ -1,18 +1,35 @@
 "use server";
 
-import { users } from "@/app/_db/users";
-import { cacheTag, revalidateTag } from "next/cache";
+import { cacheTag } from "next/cache";
+import prisma from "@/root/lib/prisma";
+import { User } from "../_types/user-types";
 
 export async function getUser(userId: string) {
     "use cache"
     cacheTag("user");
 
-    const user = users.find((user) => user.id === parseInt(userId));
+    try {
+        const dbUser = await prisma.user.findUnique({
+            where: {
+                id: parseInt(userId),
+            },
+        });
 
-    if (!user) {
-        throw new Error("User not found");
+        if (!dbUser) {
+            throw new Error("User not found");
+        }
+
+        const user: User = {
+            firstName: dbUser?.firstName,
+            lastName: dbUser?.lastName,
+            username: dbUser?.username,
+            email: dbUser?.email,
+        }
+
+        return user;
+
+    } catch (error) {
+        return error as Error;
     }
-
-    // revalidateTag("user", "max");
-    return user;
 }
+

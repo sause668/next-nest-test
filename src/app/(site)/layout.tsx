@@ -3,8 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { getUser } from "./_actions/user-actions";
 import Profile from "./_components/Profile/Profile";
-import UserProvider from "./_context/users";
+// import UserProvider from "./_context/users";
 import { User } from "./_types/user-types";
+import { notFound } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,16 +24,17 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
 
-  const userData: Promise<User> = getUser("1");
-  const user: User = await userData;
-  
+  const user = await getUser("1");
+
+  if (user instanceof Error) {
+    notFound();
+  }
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <UserProvider user={user}>
-        <Profile/>
+        <Profile user={user} />
         {children}
-        </UserProvider>
       </body>
     </html>
   );

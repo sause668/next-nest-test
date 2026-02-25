@@ -4,9 +4,7 @@ import { useUser } from "../../_context/users";
 import { User } from "../../_types/user-types";
 import "./Profile.css";
 
-export default function Profile() {
-
-    const { user } = useUser() as { user: User };
+export default function Profile({ user }: { user: User }) {
     
     return (
         <div className="flex justify-end items-center bg-black font-sans p-4 pr-50">

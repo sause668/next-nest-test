@@ -6,10 +6,10 @@ import { use } from "react";
 import "./Decks.css";
 import { Deck } from "../../_types/deck-types";
 
-export default function Decks({ decksData }: { decksData: Promise<any> }) {
-    const decks = use(decksData);
+export default function Decks({ decks }: { decks: Deck[] }) {
     const router = useRouter();
 
+    console.log("Decks", decks);
 
     return (
     <div className="flex min-h-screen items-center justify-center bg-black font-sans">

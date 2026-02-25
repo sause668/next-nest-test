@@ -2,7 +2,7 @@ export interface Deck {
     id: number;
     name: string;
     description: string;
-    cards: Card[];
+    cards?: Card[];
 }
 
 export interface Card {
