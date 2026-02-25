@@ -1,11 +1,9 @@
 "use client";
 import Link from "next/link";
 import "./Deck.css";
-import { use } from "react";
 import { Deck, Card } from "../../_types/deck-types";
 
-export default function DeckComponent({ deckData, }: { deckData: Promise<Deck> }) {
-    const deck: Deck = use(deckData);
+export default function DeckComponent({ deck }: { deck: Deck }) {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-black font-sans">
@@ -17,7 +15,7 @@ export default function DeckComponent({ deckData, }: { deckData: Promise<Deck> }
                     <p className="text-sm text-gray-500">{deck.description}</p>
                     </div>
                     <div className="flex gap-2">
-                        {deck.cards.map((card: Card) => (
+                        {deck.cards && deck.cards.map((card: Card) => (
                             <div className="flex flex-col gap-2 bg-white rounded-md p-3 max-w-40" key={card.id}>
                                 <h3 className="text-lg font-bold text-black">{card.name}</h3>
                                 <p className="text-sm text-gray-500">{card.description}</p>
