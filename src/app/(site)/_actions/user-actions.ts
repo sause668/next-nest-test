@@ -1,7 +1,7 @@
 "use server";
 
 import { cacheTag } from "next/cache";
-import prisma from "@/root/lib/prisma";
+import prisma from "@/lib/prisma";
 import { User } from "../_types/user-types";
 
 export async function getUser(userId: string) {

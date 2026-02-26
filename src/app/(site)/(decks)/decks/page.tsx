@@ -1,6 +1,6 @@
 import Decks from "../_components/Decks/Decks";
 import { getDecks } from "../_actions/decks_actions";
-import prisma from "@/root/lib/prisma";
+import prisma from "@/lib/prisma";
 import { useUser } from "../../_context/users";
 import { User } from "../../_types/user-types";
 import { Deck } from "../_types/deck-types";

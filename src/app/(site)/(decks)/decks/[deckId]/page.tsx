@@ -2,7 +2,7 @@ import { getDeck } from "../../_actions/decks_actions";
 import { notFound } from "next/navigation";
 import DeckComponent from "../../_components/Deck/Deck";
 import { Deck } from "../../_types/deck-types";
-import prisma from "@/root/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export default async function DeckPage({ params }: { params: Promise<{ deckId: string }>  }) {
     const { deckId } = await params;

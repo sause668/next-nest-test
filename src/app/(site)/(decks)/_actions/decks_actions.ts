@@ -1,10 +1,10 @@
 "use server"
 
 import { decks } from "@/app/_db/decks-data";
-import { cacheTag } from "next/cache";
+import { cacheTag, revalidateTag, revalidatePath } from "next/cache";
 // import { notFound } from "next/navigation";
-import { Deck } from "../_types/deck-types";
-import prisma from "@/root/lib/prisma";
+import { Deck, Card } from "../_types/deck-types";
+import prisma from "@/lib/prisma";
 
 export async function getDecks(userId: string) {
     "use cache"
@@ -61,7 +61,62 @@ export async function getDeck(deckId: string) {
         return deck;
 
     } catch (error) {
-        // console.error((error as Error).message);
+        return error as Error;
+    }
+}
+
+export async function addCard(deckId: string, cardName: string, cardDescription: string) {
+    
+    try {
+        const dbDeck = await prisma.deck.findUnique({
+            where: {
+                id: parseInt(deckId),
+            },
+        });
+
+        if (!dbDeck) {
+            throw new Error("Deck not found");
+        }
+
+        await prisma.card.create({
+            data: {
+                name: cardName,
+                description: cardDescription,
+                deckId: parseInt(deckId),
+            },
+        });
+        
+        revalidatePath(`/decks/${deckId}`);
+
+        return { success: true };
+
+        
+    } catch (error) {
+        return error as Error;
+    }
+}
+
+export async function deleteCard(cardId: string) {
+    try {
+        const dbCard = await prisma.card.findUnique({
+            where: {
+                id: parseInt(cardId),
+            },
+        });
+
+        if (!dbCard) {
+            throw new Error("Card not found");
+        }
+        await prisma.card.delete({
+            where: {
+                id: parseInt(cardId),
+            },
+        });
+
+        revalidatePath(`/decks/${dbCard.deckId}`);
+
+        return { success: true };
+    } catch (error) {
         return error as Error;
     }
 }
