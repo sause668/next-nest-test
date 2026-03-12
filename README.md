@@ -81,3 +81,72 @@ git checkout prisma-developement
 - View Database
   - `npx prisma studio`
 
+
+## Prisma Queries
+
+### Create
+- `create`
+- `createMany`
+- `createManyAndReturn`
+
+### Read
+- `findUnique`
+- `findMany`
+- `findFirst`
+- `where: { email: { endsWith: "prisma.io" } }`
+- `select: { email: true, name: true }`
+- `include: { posts: true },`
+
+### Update
+- `update`
+- `updateMany`
+- `updateManyAndReturn`
+- `upsert`
+```javascript
+const upsertUser = await prisma.user.upsert({
+  where: { email: "viola@prisma.io" },
+  update: { name: "Viola the Magnificent" },
+  create: { email: "viola@prisma.io", name: "Viola the Magnificent" },
+});
+
+await prisma.post.updateMany({
+  data: {
+    views: { increment: 1 },
+    likes: { increment: 1 },
+  },
+});
+```
+
+### Delete
+- `delete`
+- `deleteMany`
+
+
+## Relation Queries
+Because the relationLoadStrategy option is currently in Preview, you need to enable it via the relationJoins preview feature flag in your Prisma schema file:
+
+```javascript
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated"
+  previewFeatures = ["relationJoins"]
+}
+```
+
+Prisma Client supports two load strategies for relations:
+
+- join (default): Uses a database-level LATERAL JOIN (PostgreSQL) or correlated subqueries (MySQL) and fetches all data with a single query to the database.
+- query: Sends multiple queries to the database (one per table) and joins them on the application level.
+
+```javascript
+const users = await prisma.user.findMany({
+  relationLoadStrategy: "join", // or 'query'
+  include: {
+    posts: true,
+  },
+});
+```
+
+
+
+

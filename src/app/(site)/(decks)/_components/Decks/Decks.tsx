@@ -9,8 +9,6 @@ import { Deck } from "../../_types/deck-types";
 export default function Decks({ decks }: { decks: Deck[] }) {
     const router = useRouter();
 
-    console.log("Decks", decks);
-
     return (
     <div className="flex min-h-screen items-center justify-center bg-black font-sans">
         <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-start gap-4 py-32 px-16 bg-black sm:items-start">

@@ -1,5 +1,6 @@
 export interface Deck {
     id: number;
+    userId: number;
     name: string;
     description: string;
     cards?: Card[];

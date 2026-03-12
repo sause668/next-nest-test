@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { getUser } from "./_actions/user-actions";
 import Profile from "./_components/Profile/Profile";
+import ProfileShell from "./_components/Profile/ProfileShell";
 // import UserProvider from "./_context/users";
 import { User } from "./_types/user-types";
 import { notFound } from "next/navigation";
+import { verifySession } from "../lib/session";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,17 +26,20 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
+  // const session = await verifySession();
+  // const user = await getUser(session.userId as string);
+  // const user = await getUser("1");
 
-  const user = await getUser("1");
-
-  if (user instanceof Error) {
-    notFound();
-  }
+  // if (user instanceof Error) {
+  //   notFound();
+  // }
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Profile user={user} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProfileShell/>
+        </Suspense>
         {children}
       </body>
     </html>

@@ -1,9 +1,7 @@
 "use server"
 
-import { decks } from "@/app/_db/decks-data";
-import { cacheTag, revalidateTag, revalidatePath } from "next/cache";
-// import { notFound } from "next/navigation";
-import { Deck, Card } from "../_types/deck-types";
+import { cacheTag, revalidatePath } from "next/cache";
+import { Deck } from "../_types/deck-types";
 import prisma from "@/lib/prisma";
 
 export async function getDecks(userId: string) {
@@ -22,8 +20,9 @@ export async function getDecks(userId: string) {
         }
         const decks: Deck[] = decksData.map((deck) => ({
             id: deck.id,
+            userId: deck.userId,
             name: deck.name,
-            description: deck.description
+            description: deck.description,
         }));
 
         return decks;
@@ -38,6 +37,7 @@ export async function getDeck(deckId: string) {
     cacheTag("deck");
     
     try {
+
         const dbDeck = await prisma.deck.findUnique({
             where: {
                 id: parseInt(deckId),
@@ -53,6 +53,7 @@ export async function getDeck(deckId: string) {
 
         const deck: Deck = {
             id: dbDeck.id,
+            userId: dbDeck.userId,
             name: dbDeck.name,
             description: dbDeck.description,
             cards: dbDeck.cards,
