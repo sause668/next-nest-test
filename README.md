@@ -64,6 +64,9 @@ git checkout prisma-developement
 - Migrate Database Tables (Do After Every Model Edit)
   - `npx prisma migrate dev --name init`
 
+- Resets migrations
+  - `npx prisma migrate reset` 
+
 - Generate Prisma Client (Do After Every Migration)
   - `npx prisma generate`
 
@@ -77,6 +80,9 @@ git checkout prisma-developement
 
 - Seed Data
   - `npx prisma db seed`
+
+- Clear Seed Data
+  - `npx prisma db push --force-reset`
 
 - View Database
   - `npx prisma studio`
