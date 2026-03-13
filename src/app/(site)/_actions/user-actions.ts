@@ -3,6 +3,7 @@
 import * as z from 'zod'
 import { cacheTag } from "next/cache";
 import prisma from "@/lib/prisma";
+import bcrypt from 'bcryptjs';
 import { User } from "../_types/user-types";
 import { createSession, verifySession, deleteSession } from "@/app/lib/session";
 import { ActionResponse, LoginFormState, LoginFormSchema } from "@/app/lib/definitions";
@@ -83,7 +84,7 @@ export async function loginUser(email: string, password: string) {
             throw new Error("User not found");
         }
 
-        if (userData.password !== validatedFields.data.password) {
+        if (!bcrypt.compareSync(validatedFields.data.password, userData.password)) {
             throw new Error("Invalid password");
         }
 

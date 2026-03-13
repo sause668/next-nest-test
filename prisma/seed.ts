@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "../src/app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
+import bcrypt from 'bcryptjs';
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
@@ -13,7 +14,7 @@ const userData: Prisma.UserCreateInput[] = [
     lastName: "Foster",
     username: "jfoster",
     email: "jane.foster@magicdecks.com",
-    password: "password",
+    password: bcrypt.hashSync("password", 10),
     decks: {
       create: [
         {
