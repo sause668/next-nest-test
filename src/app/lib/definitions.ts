@@ -13,10 +13,12 @@ export interface ActionResponse {
 
 // User Definitions
 export interface User {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
+    id?: number | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    username?: string | undefined;
+    email?: string | undefined;
+    password?: string | undefined;
 }
 
 //Login Form Definitions
@@ -41,15 +43,39 @@ export type LoginFormState = {
     } | undefined
 } | undefined
 
-// export interface LoginFormState {
-//     errors: string[],
-//     properties?: {
-//         email?: { errors: string[] } | undefined;
-//         password?: { errors: string[] } | undefined;
-//     } | undefined
-// }
+// Signup Form Definitions
+export const SignupFormSchema = z
+    .object({
+        firstName: z.string().min(1, { error: 'First Name is required' }).trim(),
+        lastName: z.string().min(1, { error: 'Last Name is required' }).trim(),
+        username: z.string().min(1, { error: 'Username is required' }).trim(),
+        email: z.email({ error: 'Please enter a valid email.' }).trim(),
+        password: z
+            .string()
+            .min(8, { error: 'Password must be at least 8 characters long' })
+            .regex(/[a-zA-Z]/, { error: 'Contain at least one letter.' })
+            .regex(/[0-9]/, { error: 'Contain at least one number.' })
+            .regex(/[^a-zA-Z0-9]/, { error: 'Contain at least one special character.', })
+            .trim(),
+        confirmPassword: z.string().trim()
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match", 
+        path: ["confirmPassword"]
 
+    })
 
+export type SignupFormState = {
+    errors: string[],
+    properties?: {
+        firstName?: { errors: string[] } | undefined;
+        lastName?: { errors: string[] } | undefined;
+        username?: { errors: string[] } | undefined;
+        email?: { errors: string[] } | undefined;
+        password?: { errors: string[] } | undefined;
+        confirmPassword?: { errors: string[] } | undefined;
+    } | undefined
+} | undefined
 
 
 //Deck Definitions

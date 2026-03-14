@@ -4,30 +4,59 @@ import * as z from 'zod'
 import { cacheTag } from "next/cache";
 import prisma from "@/lib/prisma";
 import bcrypt from 'bcryptjs';
-import { User } from "../_types/user-types";
+import { User } from "../../lib/definitions";
 import { createSession, verifySession, deleteSession } from "@/app/lib/session";
-import { ActionResponse, LoginFormState, LoginFormSchema } from "@/app/lib/definitions";
+import { ActionResponse, LoginFormState, LoginFormSchema, SignupFormSchema, SignupFormState } from "@/app/lib/definitions";
 
-export async function getUser(userId: string) {
+export async function getUserById(userId: string) {
     "use cache"
     cacheTag("user");
 
     try {
-        const dbUser = await prisma.user.findUnique({
+        const user: User | null = await prisma.user.findUnique({
             where: {
                 id: parseInt(userId),
             },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true,
+                email: true,
+            },
         });
 
-        if (!dbUser) {
+        if (!user) {
             throw new Error("User not found");
         }
 
-        const user: User = {
-            firstName: dbUser?.firstName,
-            lastName: dbUser?.lastName,
-            username: dbUser?.username,
-            email: dbUser?.email,
+        return user;
+
+    } catch (error) {
+        return error as Error;
+    }
+}
+
+export async function getUserByEmail(email: string) {
+    "use cache"
+    cacheTag("user");
+
+    try {
+        const user: User | null = await prisma.user.findUnique({
+            where: {
+                email: email,
+            },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true,
+                email: true,
+            },
+        });
+
+        if (!user) {
+            throw new Error("User not found");
         }
 
         return user;
@@ -46,7 +75,7 @@ export async function updateUserSession() {
             throw session;
         }
 
-        const user = await getUser(session.userId as string);
+        const user = await getUserById(session.userId as string);
 
         if (user instanceof Error) {
             throw user;
@@ -59,23 +88,73 @@ export async function updateUserSession() {
     }
 }
 
-export async function loginUser(email: string, password: string) {
-
-    // const passwordHash = await bcrypt.hash(password, 10);
+export async function signupUser(firstName: string, lastName: string, username: string, email: string, password: string, confirmPassword: string) {
 
     try {
-        // Validate form fields
+        const validatedFields = SignupFormSchema.safeParse({
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword,
+        })
+
+        if (!validatedFields.success) {
+            return z.treeifyError(validatedFields.error) as SignupFormState;
+        }
+
+        const userData = await prisma.user.findUnique({
+            where: { email: validatedFields.data.email },
+            select: { id: true },
+        });
+
+        if (userData) {
+            throw new Error("User already exists");
+        }
+
+        const passwordHash = await bcrypt.hash(validatedFields.data.password, 10);
+
+        await prisma.user.create({
+            data: { 
+                firstName: validatedFields.data.firstName, 
+                lastName: validatedFields.data.lastName, 
+                username: validatedFields.data.username, 
+                email: validatedFields.data.email, 
+                password: passwordHash },
+        });
+
+        const newUser = await getUserByEmail(validatedFields.data.email);
+
+        if (newUser instanceof Error) {
+            throw newUser;
+        }
+
+        if (!newUser.id) {
+            throw new Error("User ID not found");
+        }
+
+        await createSession(newUser.id.toString());
+
+        return {message: "Signup successful"} as ActionResponse;
+
+    } catch (error) {
+        return {errors: [(error as Error).message]} as SignupFormState;
+    }
+}
+
+export async function loginUser(email: string, password: string) {
+
+    try {
         const validatedFields = LoginFormSchema.safeParse({
             email: email,
             password: password,
         })
 
-        // If any form fields are invalid, return early
         if (!validatedFields.success) {
             return z.treeifyError(validatedFields.error) as LoginFormState;
         }
 
-        // Call the provider or db to create a user...
         const userData = await prisma.user.findUnique({
             where: { email: validatedFields.data.email },
         });
@@ -90,7 +169,7 @@ export async function loginUser(email: string, password: string) {
 
         await createSession(userData.id.toString());
 
-        // return { message: "Login successful"} as ActionResponse;
+        return { message: "Login successful"} as ActionResponse;
     }
     catch (error) {
         return error as Error;
@@ -118,8 +197,6 @@ export async function logoutUser() {
 }
 
 export async function createUser(firstName: string, lastName: string, username: string, email: string, password: string) {
-    "use cache"
-    cacheTag("user");
 
     try {
         const user = await prisma.user.create({
@@ -132,8 +209,6 @@ export async function createUser(firstName: string, lastName: string, username: 
 
 
 export async function updateUser(id: string, firstName: string, lastName: string, username: string, email: string, password: string) {
-    "use cache"
-    cacheTag("user");
 
     try {
         const user = await prisma.user.update({
