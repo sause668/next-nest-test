@@ -60,7 +60,7 @@ export const SignupFormSchema = z
         confirmPassword: z.string().trim()
     })
     .refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords don't match", 
+        message: "Passwords don't match",
         path: ["confirmPassword"]
 
     })
@@ -85,6 +85,8 @@ export interface Deck {
     name: string;
     description: string;
     cards?: Card[];
+    updatedAt?: Date;
+    createdAt?: Date;
 }
 
 export interface Card {
@@ -95,6 +97,25 @@ export interface Card {
 
 export type DeckData = Promise<Deck | Error> | Error;
 
+//Deck Form Definitions
+export const DeckFormSchema = z.object({
+    deckName: z
+        .string()
+        .min(1, { error: 'Deck Name is required' })
+        .trim(),
+    deckDescription: z
+        .string()
+        .min(1, { error: 'Deck Description is required' })
+        .trim(),
+})
+
+export type DeckFormState = {
+    errors: string[],
+    properties?: {
+        deckName?: { errors: string[] } | undefined;
+        deckDescription?: { errors: string[] } | undefined;
+    } | undefined
+} | undefined
 
 
 
